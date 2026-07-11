@@ -2,6 +2,11 @@
 
 本项目遵循 [Semantic Versioning](https://semver.org/)；GitHub Release tag 使用 `vX.Y.Z`。
 
+## 1.0.2 - 2026-07-11
+
+- GitHub 仓库改为公开访问。
+- 安装与自更新可直接下载公开 Release，不再要求 GitHub CLI 登录。
+
 ## 1.0.1 - 2026-07-11
 
 - 修复 npm 直接从私有 Git 仓库全局安装可能产生失效临时链接的问题。

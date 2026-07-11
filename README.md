@@ -11,13 +11,10 @@
 
 ## 从 GitHub 安装
 
-仓库当前为私有仓库，先确保 GitHub CLI 已登录且 Git 可以访问该仓库：
+直接从公开 GitHub Release 安装：
 
 ```bash
-gh auth login
-gh release download v1.0.1 --repo iihciyekub/ebsco-must-doi-download --pattern '*.tgz'
-npm install --global ./ebsco-must-doi-download-1.0.1.tgz
-rm ./ebsco-must-doi-download-1.0.1.tgz
+npm install --global https://github.com/iihciyekub/ebsco-must-doi-download/releases/download/v1.0.2/ebsco-must-doi-download-1.0.2.tgz
 npx playwright install chromium
 ebsco-doi --version
 ```
@@ -25,7 +22,7 @@ ebsco-doi --version
 ## 本地开发安装
 
 ```bash
-git clone git@github.com:iihciyekub/ebsco-must-doi-download.git
+git clone https://github.com/iihciyekub/ebsco-must-doi-download.git
 cd ebsco-must-doi-download
 npm install
 npx playwright install chromium
@@ -47,11 +44,10 @@ ebsco-doi update --check
 ebsco-doi update
 ```
 
-私有仓库的版本查询需要 `gh auth login`。升级命令只接受正式 GitHub Release，不会自动安装未发布的分支代码。也可以用相同方式手动安装指定版本：
+升级命令只接受正式 GitHub Release，不会自动安装未发布的分支代码。也可以手动安装指定版本：
 
 ```bash
-gh release download v1.0.1 --repo iihciyekub/ebsco-must-doi-download --pattern '*.tgz'
-npm install --global ./ebsco-must-doi-download-1.0.1.tgz
+npm install --global https://github.com/iihciyekub/ebsco-must-doi-download/releases/download/v1.0.2/ebsco-must-doi-download-1.0.2.tgz
 ```
 
 ## 使用

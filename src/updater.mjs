@@ -1,5 +1,5 @@
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, readdirSync, rmSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
@@ -60,7 +60,7 @@ export async function getLatestReleaseTag() {
       return normalizeVersion(latestReleaseFromGh()).tag;
     } catch {
       throw new Error(
-        `无法查询 GitHub 最新 Release。私有仓库请先运行 gh auth login。(${apiError.message})`
+        `无法查询 GitHub 最新 Release，请检查网络连接。(${apiError.message})`
       );
     }
   }
@@ -82,32 +82,23 @@ export async function runUpdate({ checkOnly = false } = {}) {
   const temporaryDir = mkdtempSync(path.join(tmpdir(), 'ebsco-doi-update-'));
   const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
   try {
-    console.log('正在通过 GitHub CLI 下载 Release 安装包...');
-    execFileSync(
-      'gh',
-      [
-        'release', 'download', latestTag,
-        '--repo', REPOSITORY,
-        '--pattern', `${packageJson.name}-*.tgz`,
-        '--dir', temporaryDir,
-        '--clobber'
-      ],
-      { stdio: 'inherit' }
-    );
-    const archives = readdirSync(temporaryDir).filter((file) => file.endsWith('.tgz'));
-    if (archives.length !== 1) throw new Error(`Release 安装包数量异常：${archives.length}`);
-    const archive = path.join(temporaryDir, archives[0]);
+    console.log('正在下载公开 GitHub Release 安装包...');
+    const version = latestTag.slice(1);
+    const filename = `${packageJson.name}-${version}.tgz`;
+    const archive = path.join(temporaryDir, filename);
+    const downloadUrl = `https://github.com/${REPOSITORY}/releases/download/${latestTag}/${filename}`;
+    const response = await fetch(downloadUrl, {
+      headers: { 'user-agent': `ebsco-doi/${CURRENT_VERSION}` },
+      signal: AbortSignal.timeout(120_000)
+    });
+    if (!response.ok) throw new Error(`Release 下载失败：HTTP ${response.status}`);
+    writeFileSync(archive, Buffer.from(await response.arrayBuffer()));
 
     console.log('正在替换全局安装版本...');
     spawnSync(npm, ['uninstall', '--global', packageJson.name], { stdio: 'inherit' });
     const result = spawnSync(npm, ['install', '--global', archive], { stdio: 'inherit' });
     if (result.error) throw new Error(`无法启动 npm：${result.error.message}`);
     if (result.status !== 0) throw new Error(`npm 更新失败，退出码 ${result.status}`);
-  } catch (error) {
-    if (error.code === 'ENOENT') {
-      throw new Error('更新需要 GitHub CLI，请先安装 gh 并运行 gh auth login。', { cause: error });
-    }
-    throw error;
   } finally {
     rmSync(temporaryDir, { recursive: true, force: true });
   }
