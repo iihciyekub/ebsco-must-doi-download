@@ -15,7 +15,9 @@
 
 ```bash
 gh auth login
-npm install --global github:iihciyekub/ebsco-must-doi-download#v1.0.0
+gh release download v1.0.1 --repo iihciyekub/ebsco-must-doi-download --pattern '*.tgz'
+npm install --global ./ebsco-must-doi-download-1.0.1.tgz
+rm ./ebsco-must-doi-download-1.0.1.tgz
 npx playwright install chromium
 ebsco-doi --version
 ```
@@ -45,10 +47,11 @@ ebsco-doi update --check
 ebsco-doi update
 ```
 
-私有仓库的版本查询需要 `gh auth login`。升级命令只接受正式 GitHub Release，不会自动安装未发布的分支代码。也可以手动安装指定版本：
+私有仓库的版本查询需要 `gh auth login`。升级命令只接受正式 GitHub Release，不会自动安装未发布的分支代码。也可以用相同方式手动安装指定版本：
 
 ```bash
-npm install --global github:iihciyekub/ebsco-must-doi-download#v1.0.0
+gh release download v1.0.1 --repo iihciyekub/ebsco-must-doi-download --pattern '*.tgz'
+npm install --global ./ebsco-must-doi-download-1.0.1.tgz
 ```
 
 ## 使用

@@ -1,5 +1,7 @@
 import { execFileSync, spawnSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, readdirSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
 
 export const REPOSITORY = 'iihciyekub/ebsco-must-doi-download';
 const packageJson = JSON.parse(
@@ -77,15 +79,38 @@ export async function runUpdate({ checkOnly = false } = {}) {
   console.log(`发现 ${latestTag}（当前 ${currentTag}）。`);
   if (checkOnly) return;
 
-  console.log('正在通过 npm 安装 GitHub Release...');
+  const temporaryDir = mkdtempSync(path.join(tmpdir(), 'ebsco-doi-update-'));
   const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
-  const result = spawnSync(
-    npm,
-    ['install', '--global', `github:${REPOSITORY}#${latestTag}`],
-    { stdio: 'inherit' }
-  );
-  if (result.error) throw new Error(`无法启动 npm：${result.error.message}`);
-  if (result.status !== 0) throw new Error(`npm 更新失败，退出码 ${result.status}`);
+  try {
+    console.log('正在通过 GitHub CLI 下载 Release 安装包...');
+    execFileSync(
+      'gh',
+      [
+        'release', 'download', latestTag,
+        '--repo', REPOSITORY,
+        '--pattern', `${packageJson.name}-*.tgz`,
+        '--dir', temporaryDir,
+        '--clobber'
+      ],
+      { stdio: 'inherit' }
+    );
+    const archives = readdirSync(temporaryDir).filter((file) => file.endsWith('.tgz'));
+    if (archives.length !== 1) throw new Error(`Release 安装包数量异常：${archives.length}`);
+    const archive = path.join(temporaryDir, archives[0]);
+
+    console.log('正在替换全局安装版本...');
+    spawnSync(npm, ['uninstall', '--global', packageJson.name], { stdio: 'inherit' });
+    const result = spawnSync(npm, ['install', '--global', archive], { stdio: 'inherit' });
+    if (result.error) throw new Error(`无法启动 npm：${result.error.message}`);
+    if (result.status !== 0) throw new Error(`npm 更新失败，退出码 ${result.status}`);
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      throw new Error('更新需要 GitHub CLI，请先安装 gh 并运行 gh auth login。', { cause: error });
+    }
+    throw error;
+  } finally {
+    rmSync(temporaryDir, { recursive: true, force: true });
+  }
 
   console.log(`更新完成：${currentTag} -> ${latestTag}`);
   console.log('如果 Playwright 提示缺少浏览器，请运行：npx playwright install chromium');

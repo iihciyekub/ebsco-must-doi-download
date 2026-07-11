@@ -1,6 +1,6 @@
 {
   "name": "ebsco-must-doi-download",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Download EBSCO full-text PDFs by DOI through the MUST proxy.",
   "license": "UNLICENSED",
   "type": "module",
