@@ -1,0 +1,30 @@
+# Dependencies and package artifacts
+node_modules/
+*.tgz
+npm-debug.log*
+
+# Authentication and local browser state
+.ebsco-profile/
+.ebsco-login-ok
+.env
+.env.*
+!.env.example
+
+# User inputs and downloaded research files
+downloads/
+output/
+*.pdf
+*.csv
+*.txt
+*.tmp
+
+# Browser/debug artifacts
+.playwright-cli/
+playwright-report/
+test-results/
+
+# OS/editor files
+.DS_Store
+.idea/
+.vscode/
+*.swp

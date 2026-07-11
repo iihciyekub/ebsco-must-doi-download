@@ -1,0 +1,32 @@
+{
+  "name": "ebsco-must-doi-download",
+  "version": "1.0.0",
+  "description": "Download EBSCO full-text PDFs by DOI through the MUST proxy.",
+  "license": "UNLICENSED",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iihciyekub/ebsco-must-doi-download.git"
+  },
+  "homepage": "https://github.com/iihciyekub/ebsco-must-doi-download#readme",
+  "bugs": "https://github.com/iihciyekub/ebsco-must-doi-download/issues",
+  "files": [
+    "src/",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "bin": {
+    "ebsco-doi": "./src/cli.mjs"
+  },
+  "scripts": {
+    "start": "node src/cli.mjs",
+    "test": "node --test",
+    "prepack": "npm test"
+  },
+  "dependencies": {
+    "playwright": "^1.61.1"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
